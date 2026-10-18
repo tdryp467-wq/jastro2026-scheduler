@@ -6,6 +6,7 @@
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="apple-mobile-web-app-title" content="JASTRO2026">
 <meta name="theme-color" content="#e8508a">
+<meta name="robots" content="noindex">
 </head>
 <body>
 <title>JASTRO2026スケジューラー</title>
@@ -193,6 +194,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .storewarn{background:var(--warn-soft);color:var(--warn);border:1px solid var(--warn);border-radius:10px;padding:10px 14px;font-size:13px;line-height:1.6}
 .storewarn b{display:block;font-size:14px}
 .storewarn button{margin-top:6px}
+.unoff{display:inline-block;margin-left:6px;padding:0 8px;border:1px solid var(--warn);color:var(--warn);border-radius:999px;font-size:10.5px;letter-spacing:.04em}
 .empty{color:var(--muted);text-align:center;padding:24px;border:1px dashed var(--line);border-radius:10px}
 footer{color:var(--muted);font-size:12px}
 .nowbox{background:var(--surface);border:2px solid var(--accent);border-radius:12px;padding:12px 16px;display:flex;flex-direction:column;gap:8px}
@@ -234,7 +236,7 @@ footer{color:var(--muted);font-size:12px}
 <div class="wrap">
   <div class="storewarn" id="storeWarn" role="alert" hidden></div>
   <header>
-    <div class="eyebrow">JASTRO 2026 · 第39回学術大会 · 11/12–11/14</div>
+    <div class="eyebrow">JASTRO 2026 · 第39回学術大会 · 11/12–11/14 <span class="unoff">非公式・個人作成</span></div>
     <h1>JASTRO2026スケジューラー</h1>
   </header>
 
@@ -252,7 +254,6 @@ footer{color:var(--muted);font-size:12px}
     <div class="mine-list" id="mineList"></div>
     <div class="mine-actions">
       <button class="btn primary" id="copyBtn" type="button">予定をテキストでコピー</button>
-      <button class="btn" id="resetBtn" type="button">おすすめに戻す</button>
       <button class="btn" id="clearBtn" type="button">すべて外す</button>
       <button class="btn undo" id="undoBtn" type="button" hidden>↶ 元に戻す</button>
       <span id="msg" class="stype" role="status"></span>
@@ -283,8 +284,8 @@ footer{color:var(--muted);font-size:12px}
         <button type="button" data-day="14" aria-pressed="false">14日(土)</button>
       </div>
       <div class="seg" role="group" aria-label="表示範囲">
-        <button type="button" data-scope="ai" aria-pressed="true">AI関連 <small id="cntAi"></small></button>
-        <button type="button" data-scope="all" aria-pressed="false">全演題 <small id="cntAll"></small></button>
+        <button type="button" data-scope="ai" aria-pressed="false">AI関連 <small id="cntAi"></small></button>
+        <button type="button" data-scope="all" aria-pressed="true">全演題 <small id="cntAll"></small></button>
       </div>
       <label class="toggle"><input type="checkbox" id="onlyMine"> ☆のみ表示</label>
     </div>
@@ -297,7 +298,7 @@ footer{color:var(--muted);font-size:12px}
 
   <main id="days"></main>
 
-  <footer>出典：JASTRO2026 プログラム（program.pdf）。会場・時刻は変更の可能性があるため、当日は公式プログラムで確認してください。複数の絞り込みはいずれかに該当する演題を表示します（OR）。分野ボタンを押していないときは「AI関連／全演題」の切り替えに従います。キーワードは空白区切りで全語を含むものを表示します。ポスター（示説）は指定時間がディスカッション枠です。山梨関連はプログラムに記載された筆頭演者・座長の所属で判定しています（共同演者は含みません）。演題番号をクリックするとコピーできます。 <button type="button" class="srcbtn" id="srcBtn">このページのHTMLソースをコピー</button></footer>
+  <footer><b>このアプリは日本放射線腫瘍学会（JASTRO）および第39回学術大会の公式アプリではなく、参加者個人が作成した非公式ツールです。</b>内容の正確性は保証されません。最新・正確な情報は必ず公式プログラム・大会ウェブサイトでご確認ください。☆・メモ・担当の登録はお使いのブラウザ内にのみ保存され、外部には送信されません。<br>出典：JASTRO2026 プログラム（program.pdf）。会場・時刻は変更の可能性があるため、当日は公式プログラムで確認してください。複数の絞り込みはいずれかに該当する演題を表示します（OR）。分野ボタンを押していないときは「AI関連／全演題」の切り替えに従います。キーワードは空白区切りで全語を含むものを表示します。ポスター（示説）は指定時間がディスカッション枠です。演題番号をクリックするとコピーできます。 <button type="button" class="srcbtn" id="srcBtn">このページのHTMLソースをコピー</button></footer>
 </div>
 
 <script>
@@ -494,11 +495,11 @@ const KEY="jastro26-ai-stars-v1";
 const STORE_OK=(()=>{try{const k="jastro26-probe",v=String(Date.now());localStorage.setItem(k,v);const ok=localStorage.getItem(k)===v;localStorage.removeItem(k);return ok}catch(e){return false}})();
 const IN_FRAME=(()=>{try{return window.top!==window.self}catch(e){return true}})();
 const IS_IOS=/iP(hone|ad|od)/.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
-const REC=new Set(S.flatMap(s=>s[7].filter(t=>t[4]).map(t=>t[0])));
+const REC=new Set();
 let stars;
 try{const v=localStorage.getItem(KEY);stars=v?new Set(JSON.parse(v)):new Set(REC)}catch(e){stars=new Set(REC)}
-const st={rp:false,rc:false,rk:false,view:"grid",day:"all",tags:new Set(),only:false,yam:false,scope:"ai",q:""};
-const ySess=s=>/山梨/.test(s[6]);
+const st={rp:false,rc:false,rk:false,view:"grid",day:"all",tags:new Set(),only:false,yam:false,scope:"all",q:""};
+const ySess=s=>false;
 const isY=(t,s)=>!!t[5]||ySess(s);
 const norm=x=>x.normalize("NFKC").toLowerCase().replace(/\s+/g,"");
 const HAY=new Map();S.forEach(s=>s[7].forEach(t=>HAY.set(t[0],norm([t[0],t[1],t[2],s[3],s[4],s[5],s[6]].join(" ")))));
@@ -581,7 +582,7 @@ function conflicts(){
   return bad;
 }
 function renderTags(){
-  document.getElementById("tagRow").innerHTML=`<button type="button" class="chip role" data-tag="__rp" aria-pressed="${st.rp}">私の発表 <small>${roles.p.size}</small></button><button type="button" class="chip role" data-tag="__rc" aria-pressed="${st.rc}">私の座長 <small>${roles.c.size}</small></button><button type="button" class="chip role co" data-tag="__rk" aria-pressed="${st.rk}">共同演者 <small>${roles.k.size}</small></button><button type="button" class="chip yam" data-tag="__yam" aria-pressed="${st.yam}"><i></i>山梨関連 <small>${YCOUNT}</small></button>`+Object.entries(TAGS).map(([k,v])=>
+  document.getElementById("tagRow").innerHTML=`<button type="button" class="chip role" data-tag="__rp" aria-pressed="${st.rp}">私の発表 <small>${roles.p.size}</small></button><button type="button" class="chip role" data-tag="__rc" aria-pressed="${st.rc}">私の座長 <small>${roles.c.size}</small></button><button type="button" class="chip role co" data-tag="__rk" aria-pressed="${st.rk}">共同演者 <small>${roles.k.size}</small></button>`+Object.entries(TAGS).map(([k,v])=>
     `<button type="button" class="chip" style="--c:var(${v.c})" data-tag="${k}" aria-pressed="${st.tags.has(k)}"><i></i>${v.n}</button>`).join("")+
     `<button type="button" class="chip" style="--c:var(--muted)" data-tag="__clear">絞り込み解除</button>`;
 }
@@ -615,7 +616,7 @@ function sessHTML(o,bad){
   const has=o.s[7].some(t=>stars.has(t[0]));const poster=o.s[3].startsWith("ポスター");
   return `<div class="sess" data-si="${o.i}"><div class="time">${o.s[1]}<small>–${o.s[2]}</small></div>
       <div class="card ${has?'has':''} ${bad.has(o.i)?'conflict':''} ${sessRole(o.s)?'role '+sessRole(o.s):''}"><div class="card-head">${isChair(o.s)?'<span class="rbadge c">私が座長</span>':''}${o.s[7].some(isPres)?'<span class="rbadge">私の発表あり</span>':''}${o.s[7].some(isCo)?'<span class="rbadge k">共同演者あり</span>':''}<span class="room ${poster?'poster':''}">${esc(o.s[3])}</span><span class="stype">${esc(o.s[4])}${o.s[6]?' ・ '+(ySess(o.s)?'<span class="ychair">'+esc(o.s[6])+'</span>':esc(o.s[6])):''}</span>${bad.has(o.i)?'<span class="cf-badge">時間重複</span>':''}${has?`<a class="calbtn" href="${esc(calUrl(o.s))}" target="_blank" rel="noopener">Googleカレンダーに追加</a>`:''}<span class="stitle">${esc(o.s[5])}</span></div>
-      <ul class="talks">${talks.map(t=>{const on=stars.has(t[0]);return `<li class="talk ${on?'on':''} ${isPres(t)?'mypres':''} ${isCo(t)?'myco':''}"><button type="button" class="star" data-code="${t[0]}" aria-pressed="${on}" aria-label="${t[0]}を聴講予定${on?'から外す':'に追加'}">${on?'★':'☆'}</button><button type="button" class="code" data-copy="${t[0]}" title="演題番号をコピー" aria-label="演題番号 ${t[0]} をコピー">${t[0]}</button><span class="ttl">${isPres(t)?'<span class="rbadge">私の発表</span>':''}${isCo(t)?'<span class="rbadge k">共同演者</span>':''}<b>${esc(t[1])}</b><span class="tags">${t[5]?`<span class="tag local ${LOC[t[5]][1]}">${LOC[t[5]][0]}</span>`:''}${t[6]&&st.scope!=="all"?'<span class="tag" style="--c:var(--muted)">AI以外</span>':''}${t[3].map(g=>`<span class="tag" style="--c:var(${TAGS[g].c})">${TAGS[g].n}</span>`).join("")}</span><span class="who">${esc(t[2])}</span><button type="button" class="rolebtn" data-rp="${t[0]}" aria-pressed="${isPres(t)}">${isPres(t)?"私の発表 ✓":"私の発表"}</button><button type="button" class="rolebtn co" data-rk="${t[0]}" aria-pressed="${isCo(t)}">${isCo(t)?"共同演者 ✓":"共同演者"}</button><button type="button" class="notebtn ${notes[t[0]]?"has":""}" data-note="${t[0]}" aria-expanded="${openNotes.has(t[0])}">${openNotes.has(t[0])?"メモを閉じる":notes[t[0]]?"メモあり（編集）":"メモを書く"}</button>${openNotes.has(t[0])?`<textarea class="note" id="note-${t[0]}" data-notefor="${t[0]}" placeholder="気になった点、質問したいこと、院内で共有したいことなど">${esc(notes[t[0]]||"")}</textarea>`:notes[t[0]]?`<span class="notepreview">${esc(notes[t[0]])}</span>`:""}</span></li>`}).join("")}</ul><div class="card-foot"><button type="button" class="rolebtn" data-rc="${o.i}" aria-pressed="${isChair(o.s)}">${isChair(o.s)?"私が座長 ✓":"私が座長"}</button><button type="button" class="backbtn" data-back="${o.i}">◀ タイムテーブルに戻る</button></div></div></div>`;
+      <ul class="talks">${talks.map(t=>{const on=stars.has(t[0]);return `<li class="talk ${on?'on':''} ${isPres(t)?'mypres':''} ${isCo(t)?'myco':''}"><button type="button" class="star" data-code="${t[0]}" aria-pressed="${on}" aria-label="${t[0]}を聴講予定${on?'から外す':'に追加'}">${on?'★':'☆'}</button><button type="button" class="code" data-copy="${t[0]}" title="演題番号をコピー" aria-label="演題番号 ${t[0]} をコピー">${t[0]}</button><span class="ttl">${isPres(t)?'<span class="rbadge">私の発表</span>':''}${isCo(t)?'<span class="rbadge k">共同演者</span>':''}<b>${esc(t[1])}</b><span class="tags">${t[6]&&st.scope!=="all"?'<span class="tag" style="--c:var(--muted)">AI以外</span>':''}${t[3].map(g=>`<span class="tag" style="--c:var(${TAGS[g].c})">${TAGS[g].n}</span>`).join("")}</span><span class="who">${esc(t[2])}</span><button type="button" class="rolebtn" data-rp="${t[0]}" aria-pressed="${isPres(t)}">${isPres(t)?"私の発表 ✓":"私の発表"}</button><button type="button" class="rolebtn co" data-rk="${t[0]}" aria-pressed="${isCo(t)}">${isCo(t)?"共同演者 ✓":"共同演者"}</button><button type="button" class="notebtn ${notes[t[0]]?"has":""}" data-note="${t[0]}" aria-expanded="${openNotes.has(t[0])}">${openNotes.has(t[0])?"メモを閉じる":notes[t[0]]?"メモあり（編集）":"メモを書く"}</button>${openNotes.has(t[0])?`<textarea class="note" id="note-${t[0]}" data-notefor="${t[0]}" placeholder="気になった点、質問したいこと、院内で共有したいことなど">${esc(notes[t[0]]||"")}</textarea>`:notes[t[0]]?`<span class="notepreview">${esc(notes[t[0]])}</span>`:""}</span></li>`}).join("")}</ul><div class="card-foot"><button type="button" class="rolebtn" data-rc="${o.i}" aria-pressed="${isChair(o.s)}">${isChair(o.s)?"私が座長 ✓":"私が座長"}</button><button type="button" class="backbtn" data-back="${o.i}">◀ タイムテーブルに戻る</button></div></div></div>`;
 }
 function renderList(bad){
   const days=st.day==="all"?[12,13,14]:[+st.day];
@@ -673,7 +674,7 @@ function asText(){
   }).join("");
 }
 let armTimer=null,undoSnap=null,gridSnap=null;
-const LBL={resetBtn:"おすすめに戻す",clearBtn:"すべて外す"};
+const LBL={clearBtn:"すべて外す"};
 function disarm(){clearTimeout(armTimer);for(const id in LBL){const e=document.getElementById(id);e.classList.remove("armed");e.textContent=LBL[id]}}
 function copyText(txt){return new Promise((ok,ng)=>{const fb=()=>{try{const ta=document.createElement("textarea");ta.value=txt;ta.style.position="fixed";ta.style.opacity="0";document.body.appendChild(ta);ta.select();const r=document.execCommand("copy");ta.remove();r?ok():ng()}catch(e){ng()}};
   try{navigator.clipboard.writeText(txt).then(ok,fb)}catch(e){fb()}})}
