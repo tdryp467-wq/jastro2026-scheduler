@@ -115,6 +115,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .ychair{color:var(--gold);font-weight:700}
 .talk.on .ttl>b{color:var(--ink)}
 .sess{content-visibility:auto;contain-intrinsic-size:auto 180px}
+.nocv .sess{content-visibility:visible}
 .gridwrap{overflow-x:auto;border:1px solid var(--line);border-radius:10px;background:var(--surface);-webkit-overflow-scrolling:touch}
 .grid{position:relative;min-width:max-content}
 .g-head,.g-row{display:flex}
@@ -702,7 +703,10 @@ document.addEventListener("click",e=>{
   if(b.dataset.jump){const i=+b.dataset.jump;const s0=S[i];gridSnap={day:st.day,tags:new Set(st.tags),yam:st.yam,q:st.q,only:st.only,scope:st.scope,x:(document.querySelector(".gridwrap")||{}).scrollLeft||0};st.view="list";document.querySelectorAll("[data-view]").forEach(x=>x.setAttribute("aria-pressed",x.dataset.view==="list"));
     if(st.day!=="all"&&+st.day!==s0[0]){st.day=String(s0[0]);document.querySelectorAll("[data-day]").forEach(x=>x.setAttribute("aria-pressed",x.dataset.day===st.day))}
     if(!s0[7].some(t=>vis(t,s0))){st.tags.clear();st.yam=false;st.q="";document.getElementById("q").value="";st.only=false;document.getElementById("onlyMine").checked=false;st.scope="all";document.querySelectorAll("[data-scope]").forEach(x=>x.setAttribute("aria-pressed",x.dataset.scope==="all"));renderTags()}
-    render();const el=document.querySelector(`.sess[data-si="${i}"]`);if(el){el.scrollIntoView({block:"start"});requestAnimationFrame(()=>el.scrollIntoView({block:"start"}));el.classList.add("flash");setTimeout(()=>el.classList.remove("flash"),1700)}return}
+    document.body.classList.add("nocv");render();const el=document.querySelector(`.sess[data-si="${i}"]`);
+    if(el){const go=()=>el.scrollIntoView({block:"start"});void el.offsetTop;go();requestAnimationFrame(()=>{go();requestAnimationFrame(go)});
+      setTimeout(()=>{go();document.body.classList.remove("nocv");requestAnimationFrame(go)},400);
+      el.classList.add("flash");setTimeout(()=>el.classList.remove("flash"),1700)}else document.body.classList.remove("nocv");return}
   if(b.dataset.back){const i=+b.dataset.back;
     if(gridSnap){Object.assign(st,{day:gridSnap.day,tags:gridSnap.tags,yam:gridSnap.yam,q:gridSnap.q,only:gridSnap.only,scope:gridSnap.scope});gridSnap=null}
     if(st.day!=="all"&&+st.day!==S[i][0])st.day=String(S[i][0]);
