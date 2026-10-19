@@ -503,8 +503,8 @@ const REC=new Set();
 let stars;
 try{const v=localStorage.getItem(KEY);stars=v?new Set(JSON.parse(v)):new Set(REC)}catch(e){stars=new Set(REC)}
 const st={rp:false,rc:false,rk:false,view:"grid",day:"all",tags:new Set(),only:false,yam:false,scope:"all",q:""};
-const ySess=s=>false;
-const isY=()=>false;
+const ySess=s=>/山梨/.test(s[6]||"");
+const isY=(t,s)=>/山梨/.test(t[2]||"")||ySess(s);
 const norm=x=>x.normalize("NFKC").toLowerCase().replace(/\s+/g,"");
 const HAY=new Map();S.forEach(s=>s[7].forEach(t=>HAY.set(t[0],norm([t[0],t[1],t[2],s[3],s[4],s[5],s[6]].join(" ")))));
 const vis=(t,s)=>{const any=st.yam||st.tags.size||st.rp||st.rc||st.rk;const hit=any?((st.rp&&isPres(t))||(st.rc&&isChair(s))||(st.rk&&isCo(t))||(st.yam&&isY(t,s))||t[3].some(g=>st.tags.has(g))):(st.q||st.scope==="all"||!t[6]||isPres(t)||isCo(t)||isChair(s));
@@ -583,8 +583,9 @@ function conflicts(){
     if(mins(a.s[1])<mins(b.s[2])&&mins(b.s[1])<mins(a.s[2])){bad.add(a.i);bad.add(b.i)}}
   return bad;
 }
+const NY=S.reduce((a,s)=>a+s[7].filter(t=>isY(t,s)).length,0);
 function renderTags(){
-  document.getElementById("tagRow").innerHTML=`<button type="button" class="chip role" data-tag="__rp" aria-pressed="${st.rp}">私の発表 <small>${roles.p.size}</small></button><button type="button" class="chip role" data-tag="__rc" aria-pressed="${st.rc}">私の座長 <small>${roles.c.size}</small></button><button type="button" class="chip role co" data-tag="__rk" aria-pressed="${st.rk}">共同演者 <small>${roles.k.size}</small></button>`+Object.entries(TAGS).map(([k,v])=>
+  document.getElementById("tagRow").innerHTML=`<button type="button" class="chip role" data-tag="__rp" aria-pressed="${st.rp}">私の発表 <small>${roles.p.size}</small></button><button type="button" class="chip role" data-tag="__rc" aria-pressed="${st.rc}">私の座長 <small>${roles.c.size}</small></button><button type="button" class="chip role co" data-tag="__rk" aria-pressed="${st.rk}">共同演者 <small>${roles.k.size}</small></button><button type="button" class="chip yam" data-tag="__yam" aria-pressed="${st.yam}"><i></i>山梨関連 <small>${NY}</small></button>`+Object.entries(TAGS).map(([k,v])=>
     `<button type="button" class="chip" style="--c:var(${v.c})" data-tag="${k}" aria-pressed="${st.tags.has(k)}"><i></i>${v.n}</button>`).join("")+
     `<button type="button" class="chip" style="--c:var(--muted)" data-tag="__clear">絞り込み解除</button>`;
 }
