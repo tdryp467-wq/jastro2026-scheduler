@@ -120,7 +120,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .talk.on .ttl>b{color:var(--ink)}
 .sess{content-visibility:auto;contain-intrinsic-size:auto 180px}
 .nocv .sess{content-visibility:visible}
-.gridwrap{overflow-x:auto;border:1px solid var(--line);border-radius:10px;background:var(--surface);-webkit-overflow-scrolling:touch}
+.gridwrap{overflow-x:auto;touch-action:pan-x pan-y;border:1px solid var(--line);border-radius:10px;background:var(--surface);-webkit-overflow-scrolling:touch}
 .grid{position:relative;min-width:max-content}
 .g-head,.g-row{display:flex}
 .g-head{position:sticky;top:0;z-index:3;background:var(--surface);border-bottom:1px solid var(--line)}
@@ -655,6 +655,7 @@ const roomKey=r=>{const m=r.match(/^第(\d+)会場/);if(m)return +m[1];const p=r
 function cat(t){if(/大会テーマ|シンポジウム|Symposium|Lecture|大会長|特別講演|文化人|Gold|パネル/.test(t))return "theme";if(/教育講演|講習|指導者/.test(t))return "edu";if(/一般口演|優秀演題候補セッション（口演）|学生・研修医/.test(t))return "oral";if(/要望演題|研究課題/.test(t))return "rq";if(/ランチョン|アフタヌーン|イブニング|ハンズオン/.test(t))return "spon";if(/示説/.test(t))return "poster";if(/特別企画|部会|ワークショップ|委員会/.test(t))return "sp";return "oth"}
 const CATN={theme:"大会テーマ・シンポジウム・特別講演",edu:"教育講演・講習",oral:"一般口演・優秀演題（口演）",rq:"要望演題",spon:"共催セミナー・ハンズオン",poster:"示説（ポスター）",sp:"特別企画・ワークショップ",oth:"その他"};
 const PXM=2; // px per minute
+let GZ=1;try{GZ=Math.min(2,Math.max(.4,+localStorage.getItem("jastro26_gz")||1))}catch(_){}
 function renderGrid(bad){
   const days=st.day==="all"?[12,13,14]:[+st.day];let html="",hits=0;
   for(const d of days){
@@ -673,7 +674,7 @@ function renderGrid(bad){
         return `<button type="button" class="blk c-${cat(o.s[4])} ${rr?"r"+rr:""} ${ns?"has":""} ${bad.has(o.i)?"cf":""} ${v||rr?"":"dim"}" style="left:${L}px;width:${Wd}px" data-jump="${o.i}" title="${esc(o.s[1]+"–"+o.s[2]+" "+o.s[4]+" "+o.s[5])}"><span class="btop"><span class="bt">${o.s[1]}–${o.s[2]}</span><span class="bdg">${rr==="c"?'<i class="r">座長</i>':rr==="p"?'<i class="r">発表</i>':rr==="k"?'<i class="r k">共同</i>':''}${ai?'<i>AI</i>':''}${ns?`<i class="st">★${ns}</i>`:''}</span></span><b>${esc(o.s[4])}</b><span class="bs">${esc(o.s[5])}</span>${ch?`<span class="bc">${esc(ch)}</span>`:""}</button>`}).join("");
       rows+=`<div class="g-row"><div class="g-room"><b>${esc(r)}</b><small>${ROOMINFO[r]||""}</small></div><div class="g-track" style="width:${W}px">${blks}</div></div>`;
     }
-    html+=`<section class="day"><h2>11月${d}日(${DOW[d]})<small>${d===12?'第1日目':d===13?'第2日目':'第3日目'}・ブロックを押すとリストのその枠へ移動</small></h2><div class="gridwrap"><div class="grid"><div class="g-head"><div class="g-room">会場＼時刻</div><div class="g-track" style="width:${W}px">${ticks}</div></div>${rows}</div></div></section>`;
+    html+=`<section class="day"><h2>11月${d}日(${DOW[d]})<small>${d===12?'第1日目':d===13?'第2日目':'第3日目'}・ブロックを押すとリストのその枠へ移動・2本指で拡大縮小</small></h2><div class="gridwrap"><div class="grid" style="zoom:${GZ}"><div class="g-head"><div class="g-room">会場＼時刻</div><div class="g-track" style="width:${W}px">${ticks}</div></div>${rows}</div></div></section>`;
   }
   html+=`<div class="g-legend">${Object.entries(CATN).map(([k,v])=>`<span><i class="c-${k}"></i>${v}</span>`).join("")}<span><i style="outline:3px solid var(--gold);outline-offset:-2px"></i>☆予定あり</span><span>薄い枠＝絞り込み・検索に該当なし</span></div>`;
   document.getElementById("days").innerHTML=html;
@@ -789,5 +790,21 @@ addEventListener("appinstalled",()=>{box.hidden=true});})()</script>
 const set=(b,open)=>{b.setAttribute("aria-expanded",open);document.getElementById(b.dataset.fold).classList.toggle("folded",!open)};
 document.querySelectorAll(".foldbtn").forEach(b=>{if(f[b.dataset.fold])set(b,false);
 b.addEventListener("click",e=>{e.stopPropagation();const open=b.getAttribute("aria-expanded")!=="true";set(b,open);f[b.dataset.fold]=!open;try{localStorage.setItem(K,JSON.stringify(f))}catch(_){}})})})()</script>
+<script>(()=>{const MIN=.4,MAX=2;
+const zoomAt=(wrap,cx,cy,z1)=>{z1=Math.min(MAX,Math.max(MIN,z1));const z0=GZ;if(Math.abs(z1-z0)<.001)return;
+  const wr=wrap.getBoundingClientRect(),rx=cx-wr.left,gx=(wrap.scrollLeft+rx)/z0,gy=(cy-wr.top)/z0;
+  const others=[...document.querySelectorAll(".gridwrap")].filter(w=>w!==wrap).map(w=>[w,w.scrollLeft]);
+  GZ=z1;document.querySelectorAll(".grid").forEach(g=>g.style.zoom=z1);
+  wrap.scrollLeft=gx*z1-rx;others.forEach(([w,x])=>w.scrollLeft=x*z1/z0);
+  const top=wrap.getBoundingClientRect().top;window.scrollBy(0,top+gy*z1-cy);
+  try{localStorage.setItem("jastro26_gz",String(z1))}catch(_){}};
+let p=null;const d=t=>Math.hypot(t[0].clientX-t[1].clientX,t[0].clientY-t[1].clientY);
+const mid=t=>[(t[0].clientX+t[1].clientX)/2,(t[0].clientY+t[1].clientY)/2];
+document.addEventListener("touchstart",e=>{const w=e.target.closest&&e.target.closest(".gridwrap");if(w&&e.touches.length===2){p={w,d:d(e.touches),z:GZ};e.preventDefault()}},{passive:false});
+document.addEventListener("touchmove",e=>{if(!p||e.touches.length!==2)return;e.preventDefault();const[cx,cy]=mid(e.touches);zoomAt(p.w,cx,cy,p.z*d(e.touches)/p.d)},{passive:false});
+document.addEventListener("touchend",e=>{if(e.touches.length<2)p=null});
+document.addEventListener("gesturestart",e=>{if(e.target.closest&&e.target.closest(".gridwrap"))e.preventDefault()});
+document.addEventListener("wheel",e=>{if(!e.ctrlKey)return;const w=e.target.closest&&e.target.closest(".gridwrap");if(!w)return;e.preventDefault();zoomAt(w,e.clientX,e.clientY,GZ*Math.exp(-e.deltaY*.01))},{passive:false});
+})()</script>
 </body>
 </html>
