@@ -218,6 +218,9 @@ footer{color:var(--muted);font-size:12px}
 .notepreview{display:block;font-size:12px;color:var(--ink);background:var(--accent-soft);border-radius:4px;padding:2px 6px;margin-top:4px;white-space:pre-wrap}
 .sync{border-top:1px dashed var(--line);padding-top:10px}
 .sync summary{cursor:pointer;font-size:13px;font-weight:700;color:var(--accent)}
+.installbox{border:1px solid var(--line);border-radius:10px;background:var(--surface);padding:10px 14px}
+.installbox ol{margin:0;padding-left:1.4em;font-size:13px;line-height:1.7}
+.installbox .os{font-size:12.5px;font-weight:700;margin:0}
 .sync-body{display:flex;flex-direction:column;gap:8px;margin-top:8px}
 .sync-body p{margin:0;font-size:12.5px;color:var(--muted)}
 .sync-body textarea{width:100%;font-family:var(--f-mono);font-size:12px;border:1px solid var(--line);border-radius:6px;padding:6px 8px;background:var(--bg);color:var(--ink);min-height:64px}
@@ -243,6 +246,17 @@ footer{color:var(--muted);font-size:12px}
     <div class="eyebrow">JASTRO 2026 · 第39回学術大会 · 11/12–11/14 <span class="unoff">非公式・個人作成</span></div>
     <h1>JASTRO2026スケジューラー</h1>
   </header>
+
+  <details class="sync installbox" id="installBox" hidden>
+    <summary>📱 スマホのホーム画面に追加してアプリとして使う</summary>
+    <div class="sync-body">
+      <p>ホーム画面に追加すると、アドレスバーのない全画面で開き、電波が弱い会場でも前回の内容を表示できます。</p>
+      <div class="row" id="installAct" hidden><button class="btn primary" id="installBtn" type="button">アプリとしてインストール</button></div>
+      <div id="howIOS"><p class="os">iPhone・iPad</p><ol><li>このページを <b>Safari</b> で開く</li><li>画面下（または上）の <b>共有ボタン</b>（□に↑）をタップ</li><li><b>「ホーム画面に追加」</b>→「追加」</li></ol>
+        <p>※ iPhoneでは、ホーム画面から開いたアプリとSafariとで保存データが別になります。Safariで☆を付けていた場合は、下の「予定コード」でアプリ側へ移してください。</p></div>
+      <div id="howAnd"><p class="os">Android</p><ol><li>このページを <b>Chrome</b> で開く</li><li>右上の <b>︙メニュー</b> をタップ</li><li><b>「アプリをインストール」</b>（または「ホーム画面に追加」）→「インストール」</li></ol></div>
+    </div>
+  </details>
 
   <section class="rolebox" id="roleBox" aria-labelledby="roleh" hidden>
     <h2 id="roleh">私の担当（演者・座長・共同演者）<small id="roleCount"></small></h2>
@@ -758,5 +772,13 @@ setInterval(renderNow,30000);
 </script>
 
 <script>if("serviceWorker"in navigator&&isSecureContext)addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}))</script>
+<script>(()=>{const box=document.getElementById("installBox");if(!box)return;
+const sa=matchMedia("(display-mode: standalone)").matches||navigator.standalone===true;if(sa)return;
+const ua=navigator.userAgent,ios=/iPhone|iPad|iPod/.test(ua)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1),and=/Android/.test(ua);
+if(ios)document.getElementById("howAnd").hidden=true;if(and)document.getElementById("howIOS").hidden=true;
+box.hidden=false;let dp=null;
+addEventListener("beforeinstallprompt",e=>{e.preventDefault();dp=e;document.getElementById("installAct").hidden=false});
+document.getElementById("installBtn").addEventListener("click",async()=>{if(!dp)return;dp.prompt();try{await dp.userChoice}catch(_){}dp=null;document.getElementById("installAct").hidden=true});
+addEventListener("appinstalled",()=>{box.hidden=true});})()</script>
 </body>
 </html>
