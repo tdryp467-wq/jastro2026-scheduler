@@ -170,6 +170,8 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .backbtn{font:inherit;font-size:calc(12.5px*var(--fs,1));font-weight:700;color:var(--accent);background:var(--accent-soft);border:1px solid var(--accent);border-radius:999px;padding:4px 14px;cursor:pointer}
 .backbtn:hover{background:var(--accent);color:var(--surface)}
 .backbtn.home{margin-left:6px}
+.testtime{position:sticky;top:0;z-index:50;display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;margin:0 0 12px;padding:10px 14px;border-radius:10px;background:var(--warn);color:#fff;font-weight:700;font-size:calc(13px*var(--fs,1))}
+.testtime button{font:inherit;font-size:calc(12.5px*var(--fs,1));color:var(--warn);background:#fff;border:0;border-radius:999px;padding:4px 14px;cursor:pointer}
 .blk.flash{animation:flash 1.6s ease-out;z-index:2}
 .sess.flash .card{animation:flash 1.6s ease-out}
 @keyframes flash{0%{box-shadow:0 0 0 4px var(--gold)}100%{box-shadow:0 0 0 0 transparent}}
@@ -386,6 +388,7 @@ footer{color:var(--muted);font-size:calc(12px*var(--fs,1))}
       <span id="prefMsg" class="stype" role="status"></span>
     </div>
   </header>
+  <div class="testtime" id="testTime" role="alert" hidden></div>
   <div class="recv" id="recvBox" role="alert" hidden></div>
 
   <details class="sync installbox" id="installBox" hidden>
@@ -1202,6 +1205,9 @@ document.addEventListener("click",e=>{
 applyFs(lsGet("jastro26_fs","m"));applyTheme(lsGet("jastro26_theme","auto"));renderNotiBtn();
 renderTags();render();
 {const m=location.hash.match(/code=([^&]+)/);if(m){let v=m[1];try{v=decodeURIComponent(v)}catch(_){}try{history.replaceState(null,"",location.pathname+location.search)}catch(_){}offerImport(v,"リンク")}}
+if(NOW_OFF){const tb=document.getElementById("testTime");const upd=()=>{const n=jstNow();tb.firstChild.textContent=`⚠ テスト時刻で表示中（${n.mo}/${n.d} ${hm(n.m)}）。「いま」の線・通知は実際の時刻ではありません。`};
+  tb.innerHTML='<span></span><button type="button" id="testOff">実際の時刻に戻す</button>';tb.hidden=false;upd();setInterval(upd,30000);
+  document.getElementById("testOff").addEventListener("click",()=>{const u=new URL(location.href);u.searchParams.delete("now");location.replace(u.pathname+u.search+u.hash)})}
 const tick=()=>{renderNow();updateNowLine();checkNoti()};
 setInterval(tick,30000);
 document.addEventListener("visibilitychange",()=>{if(!document.hidden)tick()});
