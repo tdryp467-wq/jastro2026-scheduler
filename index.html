@@ -893,7 +893,9 @@ function renderGrid(bad){
   document.getElementById("hitCount").textContent=hits+"件該当";
   applyGX();scrollToNow(false);
 }
-function updateNowLine(){if(st.view!=="grid")return;const n=jstNow();let want=null;
+let mineNowKey="";
+function updateNowLine(){if(st.view==="mine"){const n=jstNow();const k=inConfNow(n)?n.d+":"+n.m:"";if(k!==mineNowKey){const y=scrollY;render();scrollTo(0,y)}return}
+  if(st.view!=="grid")return;const n=jstNow();let want=null;
   if(inConfNow(n)){const sec=document.querySelector(`.day[data-d="${n.d}"]`);if(sec){const t0=+sec.dataset.t0,t1=+sec.dataset.t1;if(n.m>=t0&&n.m<=t1)want=n.m-t0}}
   const el=document.querySelector(".g-now");
   if(want===null&&!el)return;
@@ -901,7 +903,7 @@ function updateNowLine(){if(st.view!=="grid")return;const n=jstNow();let want=nu
   el.dataset.m=want;el.querySelector("span").textContent="いま "+hm(n.m);applyGX()}
 // ☆マイ・タイムライン
 function renderMine(bad){
-  const days=st.day==="all"?[12,13,14]:[+st.day];const n=jstNow();const inConf=inConfNow(n);let html="",cnt=0;
+  const days=st.day==="all"?[12,13,14]:[+st.day];const n=jstNow();const inConf=inConfNow(n);mineNowKey=inConf?n.d+":"+n.m:"";let html="",cnt=0;
   html+=`<div class="tl-intro"><span class="stype">☆と担当の枠だけを時間順に並べています。空き時間・会場の移動・重複がわかります。</span><button type="button" class="mini" data-free="open">空き時間に開催中の枠を探す</button><button type="button" class="mini" id="reportBtn2">聴講まとめ（報告書用）</button></div>`;
   for(const d of days){
     const items=S.map((s,i)=>({s,i,a:mins(s[1]),b:mins(s[2])})).filter(o=>o.s[0]===d&&(o.s[7].some(t=>stars.has(t[0]))||sessRole(o.s))).sort((x,y)=>x.a-y.a||x.b-y.b);
