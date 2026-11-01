@@ -153,7 +153,6 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .backbtn{font:inherit;font-size:calc(12.5px*var(--fs,1));font-weight:700;color:var(--accent);background:var(--accent-soft);border:1px solid var(--accent);border-radius:999px;padding:4px 14px;cursor:pointer}
 .backbtn:hover{background:var(--accent);color:var(--surface)}
 .backbtn.home{margin-left:6px}
-.tl-nav{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end;margin:6px 0}
 .blk.flash{animation:flash 1.6s ease-out;z-index:2}
 .sess.flash .card{animation:flash 1.6s ease-out}
 @keyframes flash{0%{box-shadow:0 0 0 4px var(--gold)}100%{box-shadow:0 0 0 0 transparent}}
@@ -903,7 +902,7 @@ function updateNowLine(){if(st.view!=="grid")return;const n=jstNow();let want=nu
 // ☆マイ・タイムライン
 function renderMine(bad){
   const days=st.day==="all"?[12,13,14]:[+st.day];const n=jstNow();const inConf=inConfNow(n);let html="",cnt=0;
-  html+=`<div class="tl-intro"><span class="stype">☆と担当の枠だけを時間順に並べています。空き時間・会場の移動・重複がわかります。</span><button type="button" class="mini" data-free="open">空き時間に開催中の枠を探す</button><button type="button" class="mini" id="reportBtn2">聴講まとめ（報告書用）</button></div><div class="tl-nav"><button type="button" class="backbtn" data-togrid="1">◀ タイムテーブルに戻る</button><button type="button" class="backbtn home" data-home="1">▲ メイン画面に戻る</button></div>`;
+  html+=`<div class="tl-intro"><span class="stype">☆と担当の枠だけを時間順に並べています。空き時間・会場の移動・重複がわかります。</span><button type="button" class="mini" data-free="open">空き時間に開催中の枠を探す</button><button type="button" class="mini" id="reportBtn2">聴講まとめ（報告書用）</button></div>`;
   for(const d of days){
     const items=S.map((s,i)=>({s,i,a:mins(s[1]),b:mins(s[2])})).filter(o=>o.s[0]===d&&(o.s[7].some(t=>stars.has(t[0]))||sessRole(o.s))).sort((x,y)=>x.a-y.a||x.b-y.b);
     cnt+=items.length;
@@ -917,14 +916,13 @@ function renderMine(bad){
       if(!nowDone&&n.m<o.a){body+=nowMark();nowDone=true}
       const live=today&&o.a<=n.m&&n.m<o.b;if(live)nowDone=true;
       const tk=o.s[7].filter(t=>stars.has(t[0]));const rr=sessRole(o.s);
-      body+=`<article class="tl-item ${bad.has(o.i)?'cf':''} ${live?'live':''} ${rr?'role '+rr:''}" data-si="${o.i}"><div class="tl-time"><b>${o.s[1]}</b><small>–${o.s[2]}</small><small>${fmtDur(o.b-o.a)}</small></div><div class="tl-body"><div class="tl-head">${live?`<span class="livebadge">開催中・残り${o.b-n.m}分</span>`:''}${isChair(o.s)?'<span class="rbadge c">私が座長</span>':''}${o.s[7].some(isPres)?'<span class="rbadge">私の発表</span>':''}${o.s[7].some(isCo)?'<span class="rbadge k">共同演者</span>':''}<button type="button" class="room roombtn ${o.s[3].startsWith("ポスター")?'poster':''}" data-map="${esc(o.s[3])}" title="会場マップで場所を見る">📍${esc(o.s[3])}<small>${esc(ROOMINFO[o.s[3]]||"")}</small></button>${bad.has(o.i)?'<span class="cf-badge">時間重複</span>':''}</div><div class="tl-title"><span class="stype">${esc(o.s[4])}</span> <b>${esc(o.s[5]||"")}</b></div>${tk.length?`<ul class="tl-talks">${tk.map(t=>`<li class="${heard.has(t[0])?'heard':''}"><button type="button" class="heardbtn" data-heard="${t[0]}" aria-pressed="${heard.has(t[0])}" aria-label="${t[0]}を聴講済み${heard.has(t[0])?'から外す':'にする'}" title="聴講済み">${heard.has(t[0])?'✓':''}</button><span><span class="tcode">${t[0]}</span> ${esc(t[1])}<span class="who">${esc(t[2])}</span>${notes[t[0]]?`<span class="notepreview">${esc(notes[t[0]])}</span>`:''}</span></li>`).join("")}</ul>`:''}<div class="tl-act"><button type="button" class="mini" data-jump="${o.i}">リストで詳しく・メモ</button>${tk.length?`<a class="calbtn" href="${esc(calUrl(o.s))}" target="_blank" rel="noopener">Googleカレンダーに追加</a>`:''}</div></div></article>`;
+      body+=`<article class="tl-item ${bad.has(o.i)?'cf':''} ${live?'live':''} ${rr?'role '+rr:''}" data-si="${o.i}"><div class="tl-time"><b>${o.s[1]}</b><small>–${o.s[2]}</small><small>${fmtDur(o.b-o.a)}</small></div><div class="tl-body"><div class="tl-head">${live?`<span class="livebadge">開催中・残り${o.b-n.m}分</span>`:''}${isChair(o.s)?'<span class="rbadge c">私が座長</span>':''}${o.s[7].some(isPres)?'<span class="rbadge">私の発表</span>':''}${o.s[7].some(isCo)?'<span class="rbadge k">共同演者</span>':''}<button type="button" class="room roombtn ${o.s[3].startsWith("ポスター")?'poster':''}" data-map="${esc(o.s[3])}" title="会場マップで場所を見る">📍${esc(o.s[3])}<small>${esc(ROOMINFO[o.s[3]]||"")}</small></button>${bad.has(o.i)?'<span class="cf-badge">時間重複</span>':''}</div><div class="tl-title"><span class="stype">${esc(o.s[4])}</span> <b>${esc(o.s[5]||"")}</b></div>${tk.length?`<ul class="tl-talks">${tk.map(t=>`<li class="${heard.has(t[0])?'heard':''}"><button type="button" class="heardbtn" data-heard="${t[0]}" aria-pressed="${heard.has(t[0])}" aria-label="${t[0]}を聴講済み${heard.has(t[0])?'から外す':'にする'}" title="聴講済み">${heard.has(t[0])?'✓':''}</button><span><span class="tcode">${t[0]}</span> ${esc(t[1])}<span class="who">${esc(t[2])}</span>${notes[t[0]]?`<span class="notepreview">${esc(notes[t[0]])}</span>`:''}</span></li>`).join("")}</ul>`:''}<div class="tl-act"><button type="button" class="mini" data-jump="${o.i}">リストで詳しく・メモ</button>${tk.length?`<a class="calbtn" href="${esc(calUrl(o.s))}" target="_blank" rel="noopener">Googleカレンダーに追加</a>`:''}<button type="button" class="backbtn" data-togrid="${o.i}">◀ タイムテーブルに戻る</button><button type="button" class="backbtn" data-home="1">▲ メイン画面に戻る</button></div></div></article>`;
       prev=o;end=Math.max(end,o.b);
     }
     if(!nowDone&&items.length)body+=nowMark();
     if(!items.length)body=`<div class="empty">この日の☆予定はまだありません。タイムテーブルやリストで☆を付けると、ここに時間順に並びます。</div>`;
     html+=`<section class="day"><h2>11月${d}日(${DOW[d]})<small>${d===12?'第1日目':d===13?'第2日目':'第3日目'}・${items.length}枠</small></h2><div class="tl">${body}</div></section>`;
   }
-  html+=`<div class="tl-nav"><button type="button" class="backbtn" data-togrid="1">◀ タイムテーブルに戻る</button><button type="button" class="backbtn home" data-home="1">▲ メイン画面に戻る</button></div>`;
   document.getElementById("days").innerHTML=html;
   document.getElementById("hitCount").textContent=`☆の枠 ${cnt}件`;
 }
@@ -981,7 +979,7 @@ document.addEventListener("click",e=>{
       setTimeout(()=>{go();document.body.classList.remove("nocv");requestAnimationFrame(go)},400);
       el.classList.add("flash");setTimeout(()=>el.classList.remove("flash"),1700)}else document.body.classList.remove("nocv");return}
   if(b.dataset.togrid){gridSnap=null;st.view="grid";document.querySelectorAll("[data-view]").forEach(x=>x.setAttribute("aria-pressed",x.dataset.view==="grid"));render();
-    const dv=document.getElementById("days");if(dv)dv.scrollIntoView({block:"start",behavior:"smooth"});return}
+    const el=document.querySelector(`.blk[data-jump="${b.dataset.togrid}"]`);if(el){el.scrollIntoView({block:"center",inline:"center"});el.classList.add("flash");setTimeout(()=>el.classList.remove("flash"),1700)}return}
   if(b.dataset.home){gridSnap=null;Object.assign(st,{view:"grid",day:"all",only:false,yam:false,scope:"all",q:"",rp:false,rc:false,rk:false});st.tags.clear();
     document.querySelectorAll("[data-view]").forEach(x=>x.setAttribute("aria-pressed",x.dataset.view==="grid"));
     document.querySelectorAll("[data-day]").forEach(x=>x.setAttribute("aria-pressed",x.dataset.day==="all"));
