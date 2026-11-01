@@ -170,6 +170,15 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .backbtn{font:inherit;font-size:calc(12.5px*var(--fs,1));font-weight:700;color:var(--accent);background:var(--accent-soft);border:1px solid var(--accent);border-radius:999px;padding:4px 14px;cursor:pointer}
 .backbtn:hover{background:var(--accent);color:var(--surface)}
 .backbtn.home{margin-left:6px}
+header{position:relative}
+header .eyebrow{padding-right:100px}
+.helpbtn{position:absolute;top:0;right:0;font:inherit;font-size:calc(13px*var(--fs,1));font-weight:700;color:var(--accent);background:var(--surface);border:1.5px solid var(--accent);border-radius:999px;padding:5px 14px;cursor:pointer;white-space:nowrap}
+.helpbtn:hover{background:var(--accent);color:var(--surface)}
+.help h3{margin:6px 0 0;font-family:var(--f-display);font-size:calc(15px*var(--fs,1));color:var(--accent);border-bottom:1px solid var(--line);padding-bottom:4px}
+.help ol,.help ul{margin:0;padding-left:1.4em;display:flex;flex-direction:column;gap:4px}
+.help .warnbox{border:1.5px solid var(--warn);border-radius:10px;padding:10px 12px;background:color-mix(in srgb,var(--warn) 8%,transparent)}
+.help .warnbox h3{color:var(--warn);border:0;margin:0 0 6px;padding:0}
+.help small{color:var(--muted)}
 .testtime{position:sticky;top:0;z-index:50;display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;margin:0 0 12px;padding:10px 14px;border-radius:10px;background:var(--warn);color:#fff;font-weight:700;font-size:calc(13px*var(--fs,1))}
 .testtime button{font:inherit;font-size:calc(12.5px*var(--fs,1));color:var(--warn);background:#fff;border:0;border-radius:999px;padding:4px 14px;cursor:pointer}
 .blk.flash{animation:flash 1.6s ease-out;z-index:2}
@@ -378,6 +387,7 @@ footer{color:var(--muted);font-size:calc(12px*var(--fs,1))}
 <div class="wrap">
   <div class="storewarn" id="storeWarn" role="alert" hidden></div>
   <header>
+    <button type="button" class="helpbtn" id="helpBtn" aria-haspopup="dialog">？ 使い方</button>
     <div class="eyebrow">JASTRO 2026 · 第39回学術大会 · 11/12–11/14 <span class="unoff">非公式・個人作成</span></div>
     <h1>JASTRO2026スケジューラー</h1>
     <div class="prefs">
@@ -465,6 +475,48 @@ footer{color:var(--muted);font-size:calc(12px*var(--fs,1))}
 
   <main id="days"></main>
 
+  <dialog class="dlg help" id="helpDlg" aria-labelledby="helpH">
+    <div class="dlg-head"><h2 id="helpH">使い方と注意事項</h2><button type="button" class="dlg-x" data-close aria-label="閉じる">×</button></div>
+    <div class="dlg-body">
+      <p>JASTRO2026（第39回日本放射線腫瘍学会学術大会・11/12〜14）の聴講予定を組むための、参加者個人による<b>非公式ツール</b>です。登録不要・無料で使えます。</p>
+      <h3>基本の流れ</h3>
+      <ol>
+        <li><b>探す</b>：「タイムテーブル」「リスト」で全演題を表示。日付・タグ・検索窓（演題・演者・施設・番号）で絞り込めます。</li>
+        <li><b>☆を付ける</b>：タイムテーブルの枠を押すとリストのその枠へ移動します。聴きたい演題の☆を押すと聴講予定に入ります。</li>
+        <li><b>確認する</b>：「☆マイ・タイムライン」で、☆と担当の枠だけを時間順に表示。空き時間・会場の移動・時間の重複がわかります。</li>
+        <li><b>当日</b>：上の「いま・次の予定」と、タイムテーブルの赤い「いま」の線で現在地を確認できます。</li>
+      </ol>
+      <h3>便利な機能</h3>
+      <ul>
+        <li><b>私の発表・私が座長・共同演者</b>：自分の担当を登録すると色付きで表示され、マイ予定にも入ります。</li>
+        <li><b>メモ・聴講済み</b>：演題ごとにメモを残せます。聴いた演題は「聴講済み」にすると「聴講まとめ（報告書用）」に反映されます。</li>
+        <li><b>空き時間に開催中の枠</b>：空いた時間に聴ける枠を探せます。</li>
+        <li><b>📍 会場マップ</b>：会場名や「この会場はどこ？」を押すと場所を表示します。</li>
+        <li><b>10分前通知</b>：☆と担当の枠が始まる10分前にお知らせします。</li>
+        <li><b>時間の縮尺</b>：タイムテーブルの「－」「＋」、2本指のピンチ、Ctrl＋ホイールで拡大・縮小できます。</li>
+        <li><b>戻るボタン</b>：「◀ タイムテーブルに戻る」で元の枠へ、「▲ メイン画面に戻る」で絞り込みを解除して一番上へ戻ります。</li>
+        <li><b>文字サイズ・配色</b>：画面上部で「小・中・大」「自動・ライト・ダーク」を切り替えられます。</li>
+        <li><b>Googleカレンダーに追加</b>：マイ・タイムラインの各枠から登録できます。</li>
+      </ul>
+      <h3>スマホで使う・端末をそろえる</h3>
+      <ul>
+        <li>「📱 スマホのホーム画面に追加してアプリとして使う」の手順で追加すると、アプリのように開けてオフラインでも見られます。</li>
+        <li>PCとスマホで予定をそろえるには「予定コード」またはQRコードを使います（マイ予定の「PCとiPhoneで予定をそろえる」）。</li>
+      </ul>
+      <div class="warnbox">
+        <h3>⚠ 注意事項</h3>
+        <ul>
+          <li><b>非公式</b>です。日本放射線腫瘍学会・大会事務局とは関係ありません。お問い合わせを学会へなさらないでください。</li>
+          <li>演題情報は公式プログラム（PDF）から抽出したものです。<b>時間・会場の変更や誤りがありえます。最新・正確な情報は必ず公式プログラムでご確認ください。</b></li>
+          <li>☆・メモなどのデータは<b>お使いの端末のブラウザ内にだけ</b>保存され、外部には送信されません。ブラウザのデータ削除・端末の変更で消えるため、大事な予定は「予定コード」で控えておいてください。</li>
+          <li>iPhoneでは、ホーム画面のアプリとSafariとで保存データが別になります。</li>
+          <li>通知はアプリを開いている間（切り替えた直後を含む）に出ます。完全に閉じていると届かないことがあります。iPhoneはホーム画面に追加したアプリから（iOS 16.4以降）使えます。</li>
+          <li>画面上部に赤い「テスト時刻で表示中」の帯が出ているときは、時刻をずらした確認用の表示です。「実際の時刻に戻す」を押してください。</li>
+        </ul>
+      </div>
+      <p><small>不具合やご意見は作成者まで。</small></p>
+    </div>
+  </dialog>
   <dialog class="dlg" id="mapDlg" aria-labelledby="mapH">
     <div class="dlg-head"><h2 id="mapH">会場マップ</h2><button type="button" class="dlg-x" data-close aria-label="閉じる">×</button></div>
     <div class="dlg-body" id="mapOut"></div>
@@ -1208,6 +1260,7 @@ renderTags();render();
 if(NOW_OFF){const tb=document.getElementById("testTime");const upd=()=>{const n=jstNow();tb.firstChild.textContent=`⚠ テスト時刻で表示中（${n.mo}/${n.d} ${hm(n.m)}）。「いま」の線・通知は実際の時刻ではありません。`};
   tb.innerHTML='<span></span><button type="button" id="testOff">実際の時刻に戻す</button>';tb.hidden=false;upd();setInterval(upd,30000);
   document.getElementById("testOff").addEventListener("click",()=>{const u=new URL(location.href);u.searchParams.delete("now");location.replace(u.pathname+u.search+u.hash)})}
+document.getElementById("helpBtn").addEventListener("click",()=>showDlg("helpDlg"));
 const tick=()=>{renderNow();updateNowLine();checkNoti()};
 setInterval(tick,30000);
 document.addEventListener("visibilitychange",()=>{if(!document.hidden)tick()});
